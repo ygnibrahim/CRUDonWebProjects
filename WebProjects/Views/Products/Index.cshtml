@@ -39,8 +39,8 @@
                        asp-route-id="@product.Id">
                         Edit
                     </a>
-                    <a class="btn btn-danger btn-sm" asp-controller="Products" asp-action="Delete"
-                       asp-route-id="@product.Id">
+                    <a class="btn btn-danger btn-sm"  asp-controller="Products" asp-action="Delete"
+                       asp-route-id="@product.Id" onclick="return confirm('Emin Misin?')">
                         Delete
                     </a>
                 </td>

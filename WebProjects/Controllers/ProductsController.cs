@@ -53,7 +53,7 @@ namespace WebProjects.Controllers
                 Price = productDto.Price,
                 Description = productDto.Description,
                 ImageFileName = newFileName,
-                CreatedAt = DateTime.Now,
+                CreatedAt = DateTime.Now
             };
 
             _appDbContext.Products.Add(product);
@@ -61,5 +61,88 @@ namespace WebProjects.Controllers
 
             return RedirectToAction("Index","Products");
         }
+
+        public IActionResult Edit(int id)
+        {
+            var product = _appDbContext.Products.Find(id);
+            if(product== null)
+            {
+                return RedirectToAction("Index", "Products");
+            }
+
+            var productDto = new ProductDto()
+            {
+                Name = product.Name,
+                Brand = product.Brand,
+                Category = product.Category,
+                Price = product.Price,
+                Description = product.Description,
+            };
+
+            ViewData["ProductId"] = product.Id;
+            ViewData["ImageFileName"] = product.ImageFileName;
+            ViewData["CreatedAt"] = product.CreatedAt.ToString("dd/MM/yyyy");
+
+
+            return View(productDto);
+        }
+        [HttpPost]
+        public IActionResult Edit (int id,ProductDto productDto)
+        {
+            var product = _appDbContext.Products.Find(id);
+            if(product == null)
+            {
+                return RedirectToAction("Index", "Products");
+            }
+            if (!ModelState.IsValid)
+            {
+                ViewData["ProductId"] = product.Id;
+                ViewData["ImageFileName"] = product.ImageFileName;
+                ViewData["CreatedAt"] = product.CreatedAt.ToString("dd/MM/yyyy");
+                return View(productDto);
+            }
+
+            string newFile = product.ImageFileName;
+            if (productDto.ImageFileName != null)
+            {
+                newFile = DateTime.Now.ToString("ddMMyyyy");
+                newFile += Path.GetExtension(productDto.ImageFileName.FileName);
+                
+                string imageFullPath = _environment.WebRootPath +"/products/" + newFile;
+                using(var stream=System.IO.File.Create(imageFullPath))
+                {
+                    productDto.ImageFileName.CopyTo(stream);
+                }
+
+                string oldImagePath = _environment.WebRootPath + "/products/" + product.ImageFileName;
+                System.IO.File.Delete(oldImagePath);
+            }
+            product.Name = productDto.Name;
+            product.Brand = productDto.Brand;
+            product.Category = productDto.Category;
+            product.Price = productDto.Price;
+            product.Description = productDto.Description;
+
+            _appDbContext.SaveChanges();
+            return RedirectToAction("Index","Products");
+        }
+
+        public IActionResult Delete(int id)
+        {
+            var product = _appDbContext.Products.Find(id);
+            if (product == null)
+            {
+                return RedirectToAction("Index", "Products");
+            }
+
+            string imageFullPath = _environment.WebRootPath + "/products/" + product.ImageFileName;
+            System.IO.File.Delete(imageFullPath);
+
+            _appDbContext.Products.Remove(product);
+            _appDbContext.SaveChanges();
+
+            return RedirectToAction("Index", "Products");
+        }
+
     }
 }
