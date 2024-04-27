@@ -37,7 +37,7 @@ namespace WebProjects.Controllers
                 return View(productDto);
             }
 
-            string newFileName = DateTime.Now.ToString("yyyyMMddHHmmssfff");
+            string newFileName = DateTime.Now.ToString("ddMMyyyy");
             newFileName += Path.GetExtension(productDto.ImageFileName!.FileName);
 
             string imageFullPath = _environment.WebRootPath + "/products/" + newFileName;
